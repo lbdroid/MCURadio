@@ -1,11 +1,10 @@
 package tk.rabidbeaver.mcuradio;
 
-public class Channel {
-    public int frequency, priority;
-    public boolean fm;
-    public Channel(int frequency, boolean fm, int priority){
+class Channel {
+    int frequency;
+    boolean fm;
+    Channel(int frequency, boolean fm){
         this.frequency = frequency;
-        this.priority = priority;
         this.fm = fm;
     }
 }

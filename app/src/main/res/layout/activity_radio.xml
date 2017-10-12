@@ -56,7 +56,6 @@
         	android:layout_width="match_parent"
         	android:layout_height="wrap_content"
         	android:maxLines="3"
-        	android:singleLine="false"
         	android:textStyle="italic"
         	android:textSize="30sp" />
     

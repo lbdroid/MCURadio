@@ -7,11 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-public class RadioDB extends SQLiteOpenHelper {
+class RadioDB extends SQLiteOpenHelper {
 	private static final int DATABASE_VERSION = 1;
 	private static final String DATABASE_NAME = "RBRadio";
 	
-	public RadioDB(Context context) {
+	RadioDB(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
@@ -32,16 +32,18 @@ public class RadioDB extends SQLiteOpenHelper {
 		// nothing to do until the next version....
 	}
 	
-	public int getLastFM(){
+	int getLastFM(){
+		int ret = 9310;
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor cursor = db.rawQuery("SELECT lastfm FROM radiosettings LIMIT 1", null);
 		if (cursor.moveToFirst()) {
-			return cursor.getInt(0);
+			ret = cursor.getInt(0);
 		}
-		return 9310;
+		cursor.close();
+		return ret;
 	}
 
-	public void setLastFreq(int lastam, int lastfm, boolean fm){
+	void setLastFreq(int lastam, int lastfm, boolean fm){
 		Log.d("RADIODB", "LASTAM: "+lastam+", LASTFM: "+lastfm+", FM: "+fm);
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
@@ -52,22 +54,26 @@ public class RadioDB extends SQLiteOpenHelper {
 		db.close();
 	}
 
-	public int getLastAM(){
+	int getLastAM(){
+		int ret = 1010;
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor cursor = db.rawQuery("SELECT lastam FROM radiosettings LIMIT 1", null);
 		if (cursor.moveToFirst()) {
-			return cursor.getInt(0);
+			ret = cursor.getInt(0);
 		}
-		return 1010;
+		cursor.close();
+		return ret;
 	}
 
-	public boolean isLastBandFM(){
+	boolean isLastBandFM(){
+		boolean i = false;
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor cursor = db.rawQuery("SELECT lastbandfm FROM radiosettings LIMIT 1", null);
 		if (cursor.moveToFirst()) {
-			return cursor.getInt(0)==1;
+			i = cursor.getInt(0)==1;
+			cursor.close();
 		}
-		return false;
+		return i;
 	}
 	
 	private void resyncFavs(){
@@ -78,9 +84,10 @@ public class RadioDB extends SQLiteOpenHelper {
 
 		for (int i=0; i<rows; i++){
 			cursor.moveToPosition(i);
-			oldorder[i] = new Channel(cursor.getInt(0), cursor.getInt(1)==1, -1);
+			oldorder[i] = new Channel(cursor.getInt(0), cursor.getInt(1)==1);
 		}
-		
+
+		cursor.close();
 		for (int i=rows-1; i>=0; i--){
 			db.execSQL("UPDATE radiofavorites SET priority="+10*(i+1)+" WHERE freq='"+oldorder[i].frequency+"' AND fm='"+oldorder[i].fm+"'");
 		}
@@ -88,15 +95,16 @@ public class RadioDB extends SQLiteOpenHelper {
 		db.close();
 	}
 	
-	public void moveFav(Channel channel, boolean up){
+	void moveFav(Channel channel, boolean up){
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		// first, find the channel's old priority.
 		Cursor cursor = db.rawQuery("SELECT priority FROM radiofavorites WHERE freq='"+channel.frequency+"' AND fm='"+(channel.fm?"1":"0")+"'",null);
-		int priority = 0;
+		int priority;
 		if (cursor.moveToFirst()){
 			priority = cursor.getInt(0);
 		} else return;
+		cursor.close();
 		
 		// if we are increasing priority, but already are maximum, do nothing -- return.
 		if (!up && priority == 10) return;
@@ -109,7 +117,7 @@ public class RadioDB extends SQLiteOpenHelper {
 		resyncFavs();
 	}
 	
-	public void setFav(Channel channel, boolean add){
+	void setFav(Channel channel, boolean add){
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.delete("radiofavorites", "freq = ? AND fm = ?", new String[]{Integer.toString(channel.frequency), channel.fm?"1":"0"});
 		if (add){
@@ -118,6 +126,7 @@ public class RadioDB extends SQLiteOpenHelper {
 			if (cursor.moveToFirst()){
 				maxpriority = cursor.getInt(0);
 			}
+			cursor.close();
 			ContentValues values = new ContentValues();
 			values.put("freq", channel.frequency);
 			values.put("priority", maxpriority+10);
@@ -128,28 +137,31 @@ public class RadioDB extends SQLiteOpenHelper {
 		resyncFavs();
 	}
 	
-	public boolean isFavorite(Channel c){
+	boolean isFavorite(Channel c){
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor cursor = db.rawQuery("SELECT * FROM radiofavorites WHERE freq='"+c.frequency+"' AND fm='"+(c.fm?"1":"0")+"'", null);
 		if (cursor.moveToFirst()) {
 			db.close();
+			cursor.close();
 			return true;
 		}
+		cursor.close();
 		db.close();
 		return false;
 	}
 	
-	public Channel[] getAllFavorites(){
-		Channel[] retval = null;
-		int rows = 0;
+	Channel[] getAllFavorites(){
+		Channel[] retval;
+		int rows;
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor cursor = db.rawQuery("SELECT freq, fm, priority FROM radiofavorites ORDER BY priority ASC", null);
 		rows = cursor.getCount();
 		retval = new Channel[rows];
 		for (int i=0; i<rows; i++){
 			cursor.moveToPosition(i);
-			retval[i] = new Channel(cursor.getInt(0), cursor.getInt(1)==1, cursor.getInt(2));
+			retval[i] = new Channel(cursor.getInt(0), cursor.getInt(1)==1);
 		}
+		cursor.close();
 		return retval;
 	}
 }

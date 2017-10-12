@@ -16,16 +16,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 public class Radio extends Activity {
-	
-	//private RadioWrapper rw;
+
 	private RadioDB rdb;
 	private Button channelbtn;
 	private ImageButton togglefav;
-	private TextView radiotext;
-	private TextView programservice;
+	//TODO private TextView radiotext;
+	//TODO private TextView programservice;
 
 	private int lastFreqAM = 1010;
 	private int lastFreqFM = 9310;
@@ -38,7 +36,6 @@ public class Radio extends Activity {
 	private LinearLayout favorites;
 	
 	private boolean band_fm = false;
-	//private int lastss = 0;
 
 	private Button amfmbtn;
 	
@@ -48,16 +45,19 @@ public class Radio extends Activity {
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			int band = intent.getIntExtra("BAND", -1);
-			int channel = intent.getIntExtra("CHANNEL", -1);
-			int area = intent.getIntExtra("AREA", -1);
+			//int band = intent.getIntExtra("BAND", -1);
+			//int channel = intent.getIntExtra("CHANNEL", -1);
+			//int area = intent.getIntExtra("AREA", -1);
 			int freq = intent.getIntExtra("FREQ", -1);
-			int ptyid = intent.getIntExtra("PTYID", -1);
-			String rdstext = intent.getStringExtra("RDSTEXT");
-			String pstext = intent.getStringExtra("PSTEXT");
-			int loc = intent.getIntExtra("LOC", -1);
-			int stereo = intent.getIntExtra("STEREO", -1);
-			if (freq > 0) channelbtn.setText((band_fm?Float.toString(((float)freq)/100):Integer.toString(freq)) + (band_fm?" MHz":" KHz"));
+			//int ptyid = intent.getIntExtra("PTYID", -1);
+			//String rdstext = intent.getStringExtra("RDSTEXT");
+			//String pstext = intent.getStringExtra("PSTEXT");
+			//int loc = intent.getIntExtra("LOC", -1);
+			//int stereo = intent.getIntExtra("STEREO", -1);
+			if (freq > 0){
+				String value = (band_fm?Float.toString(((float)freq)/100):Integer.toString(freq)) + (band_fm?" MHz":" KHz");
+				channelbtn.setText(value);
+			}
 		}
 	};
 
@@ -80,7 +80,7 @@ public class Radio extends Activity {
 
 		rdb.setLastFreq(lastFreqAM, lastFreqFM, fm);
 
-		if (rdb.isFavorite(new Channel(frequency, fm, -1))){
+		if (rdb.isFavorite(new Channel(frequency, fm))){
 			lastChannelIsFav = true;
 			togglefav.setImageResource(R.drawable.ic_star_selected);
 		} else {
@@ -109,8 +109,8 @@ public class Radio extends Activity {
 		registerReceiver(receiver, filter);
 
 		//channel = (Button) this.findViewById(R.id.channelline);
-		radiotext = findViewById(R.id.radiotextline);
-		programservice = findViewById(R.id.programserviceline);
+		//TODO radiotext = findViewById(R.id.radiotextline);
+		//TODO programservice = findViewById(R.id.programserviceline);
 		
 		channelbtn = findViewById(R.id.channelline);
 		channelbtn.setOnClickListener(new Button.OnClickListener(){
@@ -138,23 +138,25 @@ public class Radio extends Activity {
 				LayoutInflater inflater=Radio.this.getLayoutInflater();
 				View layout=inflater.inflate(R.layout.dialog_channel,(ViewGroup)getWindow().getDecorView().findViewById(R.layout.activity_radio));
 				dialog.setView(layout);
-				channelinput = (EditText) layout.findViewById(R.id.channel);
-				dialogband = (Button) layout.findViewById(R.id.dialog_amfm);
+				channelinput = layout.findViewById(R.id.channel);
+				dialogband = layout.findViewById(R.id.dialog_amfm);
 				//channelinput.append(lastChannel.split(" ")[0]);
 				dialogband.setText(band_fm?"FM":"AM");
 				dialogband.setOnClickListener(new Button.OnClickListener(){
 					@Override
 					public void onClick(View v) {
-						if (dialogband.getText().toString().equalsIgnoreCase("AM"))
-							dialogband.setText("FM");
-						else dialogband.setText("AM");
+						String am = "AM";
+						String fm = "FM";
+						if (dialogband.getText().toString().equalsIgnoreCase("AM")) dialogband.setText(fm);
+						else dialogband.setText(am);
 					}
 				});
 				dialog.show();
 			}
 		});
 
-		channelbtn.setText(Integer.toString(freq) + (band_fm?" FM":" AM"));
+		String amfm = Integer.toString(freq) + (band_fm?" FM":" AM");
+		channelbtn.setText(amfm);
 		
 		amfmbtn = findViewById(R.id.amfmbtn);
 		amfmbtn.setOnClickListener(new Button.OnClickListener(){
@@ -175,11 +177,11 @@ public class Radio extends Activity {
 				if (lastChannelIsFav){
 					((ImageButton) v).setImageResource(R.drawable.ic_star);
 					lastChannelIsFav = false;
-					rdb.setFav(new Channel(freq, band_fm, -1), false);
+					rdb.setFav(new Channel(freq, band_fm), false);
 				} else {
 					((ImageButton) v).setImageResource(R.drawable.ic_star_selected);
 					lastChannelIsFav = true;
-					rdb.setFav(new Channel(freq, band_fm, -1), true);
+					rdb.setFav(new Channel(freq, band_fm), true);
 				}
 				refreshfav();
 			}
@@ -283,51 +285,13 @@ public class Radio extends Activity {
 					return false;
 				}
 			});
+			String favname;
 			if (favs[i].fm)
-				b.setText(Float.toString(((float)favs[i].frequency)/100)+" FM");
+				favname = Float.toString(((float) favs[i].frequency) / 100) + " FM";
 			else
-				b.setText(favs[i].frequency+" AM");
+				favname=favs[i].frequency+" AM";
+			b.setText(favname);
 			favorites.addView(b);
 		}
-	}
-
-	// Essentially, this function is there to receive data from the radio and update the UI accordingly.
-	public void updateStatus(final String name, final String value){
-			runOnUiThread(new Runnable(){
-				@Override
-				public void run() {
-					if (name.equalsIgnoreCase("rdsprogramservice"))
-						programservice.setText(value.replaceAll(" +", " ").trim());
-					if (name.equalsIgnoreCase("rdsradiotext"))
-						radiotext.setText(value.replaceAll(" +", " ").trim());
-					if (name.equalsIgnoreCase("tune") || name.equalsIgnoreCase("seek")){
-						if (name.equalsIgnoreCase("tune")){
-							//if (signalmenu != null) signalmenu.setIcon(R.drawable.bars_0);
-							//lastss = 0;
-
-							/*lastChannel = value;
-							if (lastChannel.contains("FM")){
-								band_fm=true;
-								lastChannelFM=lastChannel;
-								rdb.setLastFM(lastChannelFM);
-							} else {
-								band_fm=false;
-								lastChannelAM=lastChannel;
-								rdb.setLastAM(lastChannelAM);
-							}*/
-						}
-						channelbtn.setText(value);
-						programservice.setText("");
-						radiotext.setText("");
-						
-						/*lastChannelIsFav = rdb.isFavorite(value);
-						if (lastChannelIsFav){
-							togglefav.setImageResource(R.drawable.ic_star_selected);
-						} else {
-							togglefav.setImageResource(R.drawable.ic_star);
-						}*/
-					}
-				}
-			});
 	}
 }
