@@ -92,7 +92,7 @@ public class RadioDB extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		// first, find the channel's old priority.
-		Cursor cursor = db.rawQuery("SELECT priority FROM radiofavorites WHERE freq='"+channel.frequency+"' AND fm='"+channel.fm+"'",null);
+		Cursor cursor = db.rawQuery("SELECT priority FROM radiofavorites WHERE freq='"+channel.frequency+"' AND fm='"+(channel.fm?"1":"0")+"'",null);
 		int priority = 0;
 		if (cursor.moveToFirst()){
 			priority = cursor.getInt(0);
@@ -103,7 +103,7 @@ public class RadioDB extends SQLiteOpenHelper {
 		
 		// increment the priority past the adjacent favorite
 		priority = up?priority+11:priority-11;
-		db.execSQL("UPDATE radiofavorites SET priority ="+priority+" WHERE freq='"+channel.frequency+"' AND fm='"+channel.fm+"'");
+		db.execSQL("UPDATE radiofavorites SET priority ="+priority+" WHERE freq='"+channel.frequency+"' AND fm='"+(channel.fm?"1":"0")+"'");
 		
 		db.close();
 		resyncFavs();

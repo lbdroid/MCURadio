@@ -39,6 +39,8 @@ public class Radio extends Activity {
 	
 	private boolean band_fm = false;
 	//private int lastss = 0;
+
+	private Button amfmbtn;
 	
 	private EditText channelinput;
 	private Button dialogband;
@@ -55,7 +57,7 @@ public class Radio extends Activity {
 			String pstext = intent.getStringExtra("PSTEXT");
 			int loc = intent.getIntExtra("LOC", -1);
 			int stereo = intent.getIntExtra("STEREO", -1);
-			if (freq > 0) channelbtn.setText(Integer.toString(freq));
+			if (freq > 0) channelbtn.setText((band_fm?Float.toString(((float)freq)/100):Integer.toString(freq)) + (band_fm?" MHz":" KHz"));
 		}
 	};
 
@@ -85,6 +87,8 @@ public class Radio extends Activity {
 			lastChannelIsFav = false;
 			togglefav.setImageResource(R.drawable.ic_star);
 		}
+
+		amfmbtn.setText(band_fm?"FM":"AM");
 	}
 	
 	@Override
@@ -152,7 +156,7 @@ public class Radio extends Activity {
 
 		channelbtn.setText(Integer.toString(freq) + (band_fm?" FM":" AM"));
 		
-		Button amfmbtn = findViewById(R.id.amfmbtn);
+		amfmbtn = findViewById(R.id.amfmbtn);
 		amfmbtn.setOnClickListener(new Button.OnClickListener(){
 			@Override
 			public void onClick(View v) {
@@ -230,8 +234,8 @@ public class Radio extends Activity {
 		});
 		
 		favorites = findViewById(R.id.favorites);
-		
 		refreshfav();
+		tune(band_fm?lastFreqFM:lastFreqAM, band_fm);
 	}
 	
 	public void refreshfav(){
@@ -279,7 +283,10 @@ public class Radio extends Activity {
 					return false;
 				}
 			});
-			b.setText(favs[i].frequency+" "+(favs[i].fm?"FM":"AM"));
+			if (favs[i].fm)
+				b.setText(Float.toString(((float)favs[i].frequency)/100)+" FM");
+			else
+				b.setText(favs[i].frequency+" AM");
 			favorites.addView(b);
 		}
 	}
