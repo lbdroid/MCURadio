@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Radio</string>
+    <string name="action_power">Toggle Power</string>
+    <string name="action_signal">Signal Strength</string>
+    <string name="band_am">AM</string>
+    <string name="band_fm">FM</string>
+    <string name="switchband">AM/FM</string>
+    <string name="seekup">Seek Up &gt;&gt;</string>
+    <string name="seekdown">&lt;&lt; Seek Down</string>
+    <string name="tuneup">Tune Up &gt;</string>
+    <string name="tunedown">&lt; Tune Down</string>
+    <string name="important">Favorite</string>
+    <string name="notimportant">Not Favorite</string>
+
+</resources>

@@ -1,0 +1,20 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="tk.rabidbeaver.radio.Radio" >
+
+    <item
+        android:id="@+id/action_power"
+        android:orderInCategory="90"
+        android:showAsAction="always"
+        android:title="@string/action_power"
+        android:icon="@drawable/ic_action_volume_muted"
+        tools:ignore="AlwaysShowAction"/>
+    
+    <item
+        android:id="@+id/action_signal"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/action_signal"
+        android:icon="@drawable/bars_0"/>
+
+</menu>

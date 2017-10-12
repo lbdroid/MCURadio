@@ -1,0 +1,125 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    tools:context="tk.rabidbeaver.mcuradio.Radio" >
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical" >
+        
+    	<RelativeLayout
+        	android:layout_width="match_parent"
+        	android:layout_height="wrap_content" >
+
+    		<Button
+        		android:id="@+id/channelline"
+        		android:layout_width="wrap_content"
+        		android:layout_height="wrap_content"
+        		android:layout_alignParentStart="true"
+        		style="?android:attr/buttonBarButtonStyle"
+        		android:textSize="90sp" />
+    	
+    		<Button
+    	    	android:id="@+id/amfmbtn"
+    	    	android:layout_toEndOf="@+id/channelline"
+    	    	android:layout_alignBaseline="@+id/channelline"
+    	    	android:layout_width="wrap_content"
+    	    	android:layout_height="wrap_content"
+    	    	android:layout_marginLeft="50dp"
+    	    	android:layout_marginRight="50dp"
+    	    	style="?android:attr/buttonBarButtonStyle"
+    	    	android:textSize="40sp"
+    	    	android:text="@string/switchband" />
+    		
+    		<ImageButton
+    		    android:id="@+id/favorite"
+    		    android:layout_alignParentEnd="true"
+    		    android:layout_centerVertical="true"
+    		    android:layout_width="wrap_content"
+    		    android:layout_height="wrap_content"
+    		    android:src="@drawable/ic_star"
+    		    android:background="@null"
+    		    android:contentDescription="@string/notimportant"/>
+    	
+    	</RelativeLayout>
+    
+    	<TextView
+        	android:id="@+id/radiotextline"
+        	android:layout_width="match_parent"
+        	android:layout_height="wrap_content"
+        	android:maxLines="3"
+        	android:singleLine="false"
+        	android:textStyle="italic"
+        	android:textSize="30sp" />
+    
+    	<TextView
+        	android:id="@+id/programserviceline"
+        	android:layout_width="match_parent"
+        	android:layout_height="wrap_content"
+        	android:textStyle="bold"
+        	android:textSize="20sp" />
+    	
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/horizontalScroll"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/seekdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/seekdown"
+            tools:ignore="ButtonStyle" />
+        
+        <Button 
+    	    android:id="@+id/tunedown"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/tunedown"
+            tools:ignore="ButtonStyle" />
+        
+        <Button
+        	android:id="@+id/tuneup"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/tuneup"
+            tools:ignore="ButtonStyle" />
+        
+    	<Button
+        	android:id="@+id/seekup"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/seekup"
+            tools:ignore="ButtonStyle" />
+    
+    </LinearLayout>
+    
+    <HorizontalScrollView
+		android:id="@+id/horizontalScroll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:layout_alignParentBottom="true"
+        android:scrollbars="none" >
+    	
+    	<LinearLayout
+        	android:id="@+id/favorites"
+        	android:layout_width="wrap_content"
+        	android:layout_height="100dp"
+			android:layout_marginTop="@dimen/activity_vertical_margin"
+        	android:orientation="horizontal" />
+    	
+    </HorizontalScrollView>
+
+</RelativeLayout>
