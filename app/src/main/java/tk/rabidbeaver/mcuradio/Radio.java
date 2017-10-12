@@ -85,8 +85,6 @@ public class Radio extends Activity {
 			lastChannelIsFav = false;
 			togglefav.setImageResource(R.drawable.ic_star);
 		}
-
-
 	}
 	
 	@Override

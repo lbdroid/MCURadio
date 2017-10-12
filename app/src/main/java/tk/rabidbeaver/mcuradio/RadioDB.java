@@ -130,7 +130,7 @@ public class RadioDB extends SQLiteOpenHelper {
 	
 	public boolean isFavorite(Channel c){
 		SQLiteDatabase db = this.getReadableDatabase();
-		Cursor cursor = db.rawQuery("SELECT * FROM radiofavorites WHERE freq='"+c.frequency+"' AND fm='"+c.fm+"'", null);
+		Cursor cursor = db.rawQuery("SELECT * FROM radiofavorites WHERE freq='"+c.frequency+"' AND fm='"+(c.fm?"1":"0")+"'", null);
 		if (cursor.moveToFirst()) {
 			db.close();
 			return true;
