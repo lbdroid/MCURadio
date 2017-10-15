@@ -40,6 +40,7 @@ class RadioDB extends SQLiteOpenHelper {
 			ret = cursor.getInt(0);
 		}
 		cursor.close();
+		db.close();
 		return ret;
 	}
 
@@ -62,6 +63,7 @@ class RadioDB extends SQLiteOpenHelper {
 			ret = cursor.getInt(0);
 		}
 		cursor.close();
+		db.close();
 		return ret;
 	}
 
@@ -73,6 +75,7 @@ class RadioDB extends SQLiteOpenHelper {
 			i = cursor.getInt(0)==1;
 			cursor.close();
 		}
+		db.close();
 		return i;
 	}
 	

@@ -25,8 +25,8 @@ public class Radio extends Activity {
 	//TODO private TextView radiotext;
 	//TODO private TextView programservice;
 
-	private int lastFreqAM = 1010;
-	private int lastFreqFM = 9310;
+	protected static int lastFreqAM = 1010;
+	protected static int lastFreqFM = 9310;
 
 	private Channel[] favs;
 	private boolean lastChannelIsFav = false;
@@ -35,7 +35,7 @@ public class Radio extends Activity {
 
 	private LinearLayout favorites;
 	
-	private boolean band_fm = false;
+	protected static boolean band_fm = false;
 
 	private Button amfmbtn;
 	
