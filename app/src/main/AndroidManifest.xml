@@ -18,7 +18,6 @@
             android:name=".AccOnReceiver">
             <intent-filter>
                 <action android:name="tk.rabidbeaver.maincontroller.ACC_ON"/>
-                <action android:name="tk.rabidbeaver.maincontroller.ACC_OFF" />
             </intent-filter>
         </receiver>
     </application>
