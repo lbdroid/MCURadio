@@ -253,10 +253,6 @@ public class Radio extends Activity {
 				}
 			}
 		});
-		
-		favorites = findViewById(R.id.favorites);
-		refreshfav();
-		tune(band_fm?lastFreqFM:lastFreqAM, band_fm);
 
 		mSocket = new LocalSocket();
 
@@ -268,6 +264,10 @@ public class Radio extends Activity {
 			e.printStackTrace();
 			finish();
 		}
+
+		favorites = findViewById(R.id.favorites);
+		refreshfav();
+		tune(band_fm?lastFreqFM:lastFreqAM, band_fm);
 
 		/*new Thread() {
 			@Override
