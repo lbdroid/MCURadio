@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.LocalSocket;
+import android.net.LocalSocketAddress;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,7 +19,15 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 public class Radio extends Activity {
+
+	LocalSocket mSocket;
+	DataInputStream is;
+	DataOutputStream os;
 
 	private RadioDB rdb;
 	private Button channelbtn;
@@ -65,15 +75,18 @@ public class Radio extends Activity {
 		Log.d("RADIOTUNE", "FREQ: "+frequency+", FM: "+fm);
 		freq = frequency;
 		band_fm = fm;
-		Intent i = new Intent();
-		i.setAction("tk.rabidbeaver.radiocontroller.BAND");
-		i.putExtra("BAND", band_fm?"FM":"AM");
-		sendBroadcast(i);
 
-		i = new Intent();
-		i.setAction("tk.rabidbeaver.radiocontroller.TUNE");
-		i.putExtra("FREQ", frequency);
-		sendBroadcast(i);
+		byte band[] = {(byte)0xaa, 0x55, 0x02, 0x01, (byte)(band_fm?0x00:0x01), (byte)(band_fm?0x03:0x02)};
+		byte freq[] = {(byte)0xaa, 0x55, 0x03, 0x02, 0x00, 0x00, 0x00};
+		freq[4] = (byte)(frequency / 256 % 0x100);
+		freq[5] = (byte)(frequency % 0x100);
+		freq[6] = (byte)(freq[2] ^ freq[3] ^ freq[4] ^ freq[5]);
+		try {
+			os.write(band, 0, 6);
+			os.write(freq, 0, 7);
+		} catch (IOException e){
+			e.printStackTrace();
+		}
 
 		if (band_fm) lastFreqFM = frequency;
 		else lastFreqAM = frequency;
@@ -191,9 +204,12 @@ public class Radio extends Activity {
 		seekupbtn.setOnClickListener(new Button.OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				Intent i = new Intent();
-				i.setAction("tk.rabidbeaver.radiocontroller.SEEK_UP");
-				sendBroadcast(i);
+				byte seek[] = {(byte)0xaa, 0x55, 0x02, 0x04, 0x01, 0x07};
+				try {
+					os.write(seek, 0, 6);
+				} catch (Exception e){
+					e.printStackTrace();
+				}
 			}
 		});
 		
@@ -201,9 +217,12 @@ public class Radio extends Activity {
 		seekdownbtn.setOnClickListener(new Button.OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				Intent i = new Intent();
-				i.setAction("tk.rabidbeaver.radiocontroller.SEEK_DOWN");
-				sendBroadcast(i);
+				byte seek[] = {(byte)0xaa, 0x55, 0x02, 0x04, 0x00, 0x06};
+				try {
+					os.write(seek, 0, 6);
+				} catch (Exception e){
+					e.printStackTrace();
+				}
 			}
 		});
 		
@@ -238,6 +257,47 @@ public class Radio extends Activity {
 		favorites = findViewById(R.id.favorites);
 		refreshfav();
 		tune(band_fm?lastFreqFM:lastFreqAM, band_fm);
+
+		mSocket = new LocalSocket();
+
+		try {
+			mSocket.connect(new LocalSocketAddress("/dev/car/radio", LocalSocketAddress.Namespace.FILESYSTEM));
+			is = new DataInputStream(mSocket.getInputStream());
+			os = new DataOutputStream(mSocket.getOutputStream());
+		} catch (Exception e){
+			e.printStackTrace();
+			finish();
+		}
+
+		/*new Thread() {
+			@Override
+			public void run() {
+				int len, i, cs;
+				byte s1, s2;
+				try {
+					while(true) {
+						if (is.readByte() != 0xaa) continue;
+						if (is.readByte() != 0x55) continue;
+						s1 = is.readByte();
+						s2 = is.readByte();
+						len = (int)s1*0x100 + s2;
+
+						byte[] data = new byte[len+1];
+						cs = 0;
+						for (i=0; i<len; i++){
+							data[i] = is.readByte();
+							cs ^= data[i];
+						}
+
+						if (cs != is.readByte()) continue;
+
+						//TODO: do something with data[]!!!
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();*/
 	}
 	
 	public void refreshfav(){
