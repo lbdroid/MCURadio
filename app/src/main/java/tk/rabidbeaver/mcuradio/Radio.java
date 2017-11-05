@@ -52,24 +52,16 @@ public class Radio extends Activity {
 	private EditText channelinput;
 	private Button dialogband;
 
-	private BroadcastReceiver receiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			//int band = intent.getIntExtra("BAND", -1);
-			//int channel = intent.getIntExtra("CHANNEL", -1);
-			//int area = intent.getIntExtra("AREA", -1);
-			int freq = intent.getIntExtra("FREQ", -1);
-			//int ptyid = intent.getIntExtra("PTYID", -1);
-			//String rdstext = intent.getStringExtra("RDSTEXT");
-			//String pstext = intent.getStringExtra("PSTEXT");
-			//int loc = intent.getIntExtra("LOC", -1);
-			//int stereo = intent.getIntExtra("STEREO", -1);
-			if (freq > 0){
-				String value = (band_fm?Float.toString(((float)freq)/100):Integer.toString(freq)) + (band_fm?" MHz":" KHz");
-				channelbtn.setText(value);
-			}
+	private void setFreq(final int freq){
+		if (freq > 0){
+			runOnUiThread(new Runnable() {
+				public void run() {
+					String value = (band_fm?Float.toString(((float)freq)/100):Integer.toString(freq)) + (band_fm?" MHz":" KHz");
+					channelbtn.setText(value);
+				}
+			});
 		}
-	};
+	}
 
 	private void tune(int frequency, boolean fm){
 		Log.d("RADIOTUNE", "FREQ: "+frequency+", FM: "+fm);
@@ -116,10 +108,6 @@ public class Radio extends Activity {
 		band_fm = rdb.isLastBandFM();
 		if (band_fm) freq = lastFreqFM;
 		else freq = lastFreqAM;
-
-		IntentFilter filter = new IntentFilter();
-		filter.addAction("tk.rabidbeaver.radiocontroller.BROADCAST");
-		registerReceiver(receiver, filter);
 
 		//channel = (Button) this.findViewById(R.id.channelline);
 		//TODO radiotext = findViewById(R.id.radiotextline);
@@ -269,14 +257,14 @@ public class Radio extends Activity {
 		refreshfav();
 		tune(band_fm?lastFreqFM:lastFreqAM, band_fm);
 
-		/*new Thread() {
+		new Thread() {
 			@Override
 			public void run() {
 				int len, i, cs;
 				byte s1, s2;
 				try {
 					while(true) {
-						if (is.readByte() != 0xaa) continue;
+						if (is.readByte() != (byte)0xaa) continue;
 						if (is.readByte() != 0x55) continue;
 						s1 = is.readByte();
 						s2 = is.readByte();
@@ -289,15 +277,43 @@ public class Radio extends Activity {
 							cs ^= data[i];
 						}
 
-						if (cs != is.readByte()) continue;
+						//if (cs != is.readByte()) continue;
 
-						//TODO: do something with data[]!!!
+						Log.d("Radio", "Instruction: "+Integer.toHexString(data[0]));
+						switch(data[0]){
+							case 0x01: // BAND
+								break;
+							case 0x02: // FREQ
+								int f1 = data[1];
+								if (f1 < 0) f1+=256;
+								int f2 = data[2];
+								if (f2 < 0) f2+=256;
+								int f3 = data[3];
+								if (f3 < 0) f3+=256;
+								int freq = f1*0x10000 + f2*0x100 + f3;
+								setFreq(freq);
+								break;
+							case 0x03: // AREA
+								break;
+							case 0x04: // RDS STAT
+								break;
+							case 0x05: // PTY ID
+								break;
+							case 0x06: // LOC
+								break;
+							case 0x09: // POWER
+								break;
+							case 0x0a: // RDS ON
+								break;
+							default:
+								Log.d("Radio", "Unhandled: "+Integer.toHexString(data[0]));
+						}
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-		}.start();*/
+		}.start();
 	}
 	
 	public void refreshfav(){
